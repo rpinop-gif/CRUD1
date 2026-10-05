@@ -1,0 +1,73 @@
+[
+  {
+    "id": 1,
+    "nombre": "Nicole",
+    "apellido": "pino pilozo",
+    "email": "romipino107@gamil.com",
+    "carnet": "12345",
+    "telefono": "0925453502",
+    "ciudad": "milagro",
+    "notas": {
+      "Estructura De Datos": [
+        10.0
+      ],
+      "Ecuaciones": [
+        10.0
+      ],
+      "Modelamiento": [
+        10.0
+      ]
+    },
+    "materias": [
+      "Ecuaciones",
+      "Estructura De Datos",
+      "Modelamiento"
+    ]
+  },
+  {
+    "id": 2,
+    "nombre": "Arellys",
+    "apellido": "Pazmiño",
+    "email": "pazminojamileth3@gmail.com",
+    "carnet": "5481",
+    "telefono": "0954796215",
+    "ciudad": "guayaquil",
+    "notas": {
+      "Matematica": [
+        10.0
+      ],
+      "Lengua": [
+        10.0
+      ],
+      "Estadistica": [
+        8.0
+      ]
+    },
+    "materias": [
+      "Estadistica",
+      "Lengua",
+      "Matematica"
+    ]
+  },
+  {
+    "id": 3,
+    "nombre": "Romina",
+    "apellido": "Bermeo",
+    "email": "bermepi@gmail.com",
+    "carnet": "5648",
+    "telefono": "0954867245",
+    "ciudad": "tres poste",
+    "notas": {
+      "Estructura": [
+        10.0
+      ],
+      "Ecuaciones": [
+        10.0
+      ]
+    },
+    "materias": [
+      "Ecuaciones",
+      "Estructura"
+    ]
+  }
+]

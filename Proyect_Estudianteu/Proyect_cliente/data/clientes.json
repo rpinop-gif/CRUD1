@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "nombre": "Arellys pazmiño",
+    "apellido": "Arizala",
+    "email": "apazminoa7@unemi.edu.ec",
+    "telefono": "0994825645",
+    "ciudad": "Gye",
+    "direccion": "guayaquil"
+  },
+  {
+    "id": 2,
+    "nombre": "Jamileth",
+    "apellido": "pazmiño",
+    "email": "pazminojamileth3@gmail.com",
+    "telefono": "065482136",
+    "ciudad": "gye",
+    "direccion": "guasmo"
+  }
+]
