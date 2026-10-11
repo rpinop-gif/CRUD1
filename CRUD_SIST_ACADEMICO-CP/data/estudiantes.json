@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "nombre": "Romina",
+    "apellido": "Pino",
+    "email": "rpino@gmail.com",
+    "carnet": "7777",
+    "carrera": "Software"
+  },
+  {
+    "id": 2,
+    "nombre": "Arellys",
+    "apellido": "Pazmiño",
+    "email": "arellysp@gmail.com",
+    "carnet": "4444",
+    "carrera": "Educación Fisica"
+  },
+  {
+    "id": 3,
+    "nombre": "Maria",
+    "apellido": "Villicela",
+    "email": "mariav@gmail.com",
+    "carnet": "3333",
+    "carrera": "Psicologia"
+  }
+]
