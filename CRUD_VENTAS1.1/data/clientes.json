@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "nombre": "Arellys",
+    "apellido": "Pazmiño",
+    "email": "arellysp@gmail.com",
+    "telefono": "0987765434",
+    "ciudad": "Guayaquil"
+  },
+  {
+    "id": 2,
+    "nombre": "Nicole",
+    "apellido": "Pino",
+    "email": "nicolep@gmail.com",
+    "telefono": "0943049841",
+    "ciudad": "Milagro"
+  }
+]
