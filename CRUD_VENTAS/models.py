@@ -489,3 +489,49 @@ class Venta(ModeloBase):
         return (f"{self.fecha} · cliente {self.cliente_id} · "  # Agrega la fecha y el cliente.
                 f"{self.cantidad} x producto {self.producto_id} "  # Agrega cantidad y producto.
                 f"= ${self.calcular_total():.2f}")  # Calcula y muestra el total.
+
+
+
+
+    # =====================================================================
+# MODELO DE PAGOS
+# =====================================================================
+
+class Pago(ModeloBase):
+    """
+    Representa un pago realizado para una venta.
+
+    Relaciona un pago con el ID de una venta, monto, método de pago y fecha.
+    """
+
+    METODOS_PERMITIDOS = ("EFECTIVO", "TARJETA", "TRANSFERENCIA")
+
+    def __init__(self, id_registro, venta_id, monto, metodo="EFECTIVO", fecha=""):
+        """
+        Inicializa un pago.
+
+        Args:
+            id_registro (int): Identificador del pago.
+            venta_id (int): ID de la venta asociada.
+            monto (float): Monto pagado.
+            metodo (str): Método de pago (EFECTIVO, TARJETA, TRANSFERENCIA).
+            fecha (str): Fecha del pago.
+        """
+        super().__init__(id_registro)
+        self.venta_id = int(venta_id)
+        self.monto = float(monto)
+        self.metodo = str(metodo).upper()
+        self.fecha = fecha or date.today().isoformat()
+
+    def a_diccionario(self):
+        """Convierte los datos del pago en un diccionario."""
+        datos = super().a_diccionario()
+        datos["venta_id"] = self.venta_id
+        datos["monto"] = self.monto
+        datos["metodo"] = self.metodo
+        datos["fecha"] = self.fecha
+        return datos
+
+    def etiqueta(self):
+        """Crea una descripción corta del pago."""
+        return f"{self.fecha} · Venta #{self.venta_id} · ${self.monto:.2f} ({self.metodo})"

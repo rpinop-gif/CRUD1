@@ -6,6 +6,8 @@ from shared.json_manager import GestorJSON  # Importa la herramienta que lee y g
 
 from shared.herramientas import es_email_valido  # Importa la función que comprueba si un correo es válido.
 
+from models import Cliente, Producto, Venta, Pago
+
 # =====================================================================
 
 # CLASE BASE (ABSTRACTA)
@@ -974,3 +976,154 @@ class VentaController(CrudBase):  # Define una clase para organizar las operacio
             total += venta.calcular_total()  # Suma el importe de esta venta al total acumulado.
 
         return round(total, 2)  # Devuelve el total redondeado a dos decimales.
+
+
+
+
+    # =====================================================================
+# CONTROLADOR DE PAGOS
+# =====================================================================
+
+class PagoController(CrudBase):
+    """Controlador que administra los pagos registrados para las ventas."""
+
+    def __init__(self, ventas, archivo="data/pagos.json"):
+        """
+        Inicializa el controlador de pagos.
+
+        Args:
+            ventas (VentaController): Instancia del controlador de ventas.
+            archivo (str): Ruta del archivo JSON.
+        """
+        self.ventas = ventas
+        self.gestor = GestorJSON(archivo)
+        self.lista = []
+
+        for datos in self.gestor.leer():
+            self.lista.append(Pago.desde_diccionario(datos))
+
+    def guardar(self):
+        """Guarda los pagos en el archivo JSON."""
+        datos = [pago.a_diccionario() for pago in self.lista]
+        self.gestor.guardar(datos)
+
+    def validar(self, datos):
+        """Valida los datos necesarios para registrar un pago."""
+        try:
+            venta_id = int(datos.get("venta_id", 0))
+            monto = float(datos.get("monto", 0))
+        except (TypeError, ValueError):
+            return "El ID de la venta y el monto deben ser números válidos"
+
+        if venta_id <= 0:
+            return "Debe indicar un ID de venta válido"
+
+        venta = self.ventas.obtener(venta_id)
+        if venta is None:
+            return f"No existe una venta con id {venta_id}"
+
+        if monto <= 0:
+            return "El monto a pagar debe ser mayor a 0"
+
+        metodo = str(datos.get("metodo", "EFECTIVO")).strip().upper()
+        if metodo not in Pago.METODOS_PERMITIDOS:
+            return f"Método de pago no válido. Permitidos: {', '.join(Pago.METODOS_PERMITIDOS)}"
+
+        return None
+
+    def leer(self):
+        """Devuelve la lista completa de pagos."""
+        return self.lista
+
+    def obtener(self, id_pago):
+        """Busca un pago por su ID."""
+        for pago in self.lista:
+            if pago.id == id_pago:
+                return pago
+        return None
+
+    def buscar(self, texto):
+        """Busca pagos por método o fecha."""
+        texto = texto.strip().lower()
+        encontrados = []
+        if texto == "":
+            return encontrados
+
+        for pago in self.lista:
+            if texto in pago.metodo.lower() or texto in pago.fecha.lower():
+                encontrados.append(pago)
+        return encontrados
+
+    def siguiente(self):
+        """Calcula el siguiente ID disponible."""
+        mayor = 0
+        for pago in self.lista:
+            if pago.id > mayor:
+                mayor = pago.id
+        return mayor + 1
+
+    def crear(self, datos):
+        """Valida y crea un nuevo registro de pago."""
+        error = self.validar(datos)
+        if error:
+            return False, error
+
+        pago = Pago(
+            self.siguiente(),
+            int(datos["venta_id"]),
+            float(datos["monto"]),
+            str(datos.get("metodo", "EFECTIVO")).strip().upper()
+        )
+
+        self.lista.append(pago)
+        self.guardar()
+        return True, f"Pago registrado: {pago.etiqueta()}"
+
+    def actualizar(self, id_pago, datos):
+        """Actualiza el método de pago o monto de un pago existente."""
+        pago = self.obtener(id_pago)
+        if pago is None:
+            return False, f"No existe un pago con id {id_pago}"
+
+        if not datos:
+            return False, "No se indicó ningún cambio"
+
+        desconos = set(datos) - {"monto", "metodo"}
+        if desconos:
+            return False, f"Campos no válidos: {', '.join(sorted(desconos))}"
+
+        if "monto" in datos:
+            try:
+                monto = float(datos["monto"])
+                if monto <= 0:
+                    return False, "El monto debe ser mayor a 0"
+                pago.monto = monto
+            except (TypeError, ValueError):
+                return False, "El monto debe ser un número válido"
+
+        if "metodo" in datos:
+            metodo = str(datos["metodo"]).strip().upper()
+            if metodo not in Pago.METODOS_PERMITIDOS:
+                return False, f"Método no válido. Permitidos: {', '.join(Pago.METODOS_PERMITIDOS)}"
+            pago.metodo = metodo
+
+        self.guardar()
+        return True, f"Pago {id_pago} actualizado"
+
+    def eliminar(self, id_pago):
+        """Elimina un pago por su ID."""
+        pago = self.obtener(id_pago)
+        if pago is None:
+            return False, f"No existe un pago con id {id_pago}"
+
+        self.lista.remove(pago)
+        self.guardar()
+        return True, f"Pago {id_pago} eliminado"
+
+    def pagos_por_venta(self, id_venta):
+        """Obtiene todos los pagos realizados a una venta."""
+        return [p for p in self.lista if p.venta_id == id_venta]
+
+    def total_pagado_venta(self, id_venta):
+        """Calcula la suma total pagada para una venta."""
+        return sum(p.monto for p in self.pagos_por_venta(id_venta))

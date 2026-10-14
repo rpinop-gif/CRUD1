@@ -1,0 +1,9 @@
+[
+  {
+    "id": 1,
+    "venta_id": 1,
+    "monto": 2.5,
+    "metodo": "EFECTIVO",
+    "fecha": "2026-10-14"
+  }
+]

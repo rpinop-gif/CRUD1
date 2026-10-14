@@ -2,8 +2,8 @@ from shared.herramientas import (  # Importa las funciones auxiliares para mostr
     imprimir_titulo, imprimir_exito, imprimir_error, imprimir_info, confirmar  # Importa las funciones necesarias.
 )
 
-from views import ClienteController, ProductoController, VentaController  # Importa los controladores del sistema.
-
+from views import ClienteController, ProductoController, VentaController, PagoController  # Importa los controladores del sistema.
+ #ANADI PAGOCONTROLER AQUI Y TAMBIEN ABAJO
 
 # Se crea UN solo controlador de cada tipo.
 # Esto permite trabajar con los mismos objetos durante todo el programa.
@@ -11,7 +11,7 @@ from views import ClienteController, ProductoController, VentaController  # Impo
 clientes = ClienteController()  # Crea el controlador encargado de gestionar clientes.
 productos = ProductoController()  # Crea el controlador encargado de gestionar productos.
 ventas = VentaController(clientes, productos)  # Crea el controlador de ventas usando clientes y productos.
-
+pagos = PagoController(ventas)
 
 # =====================================================================
 # AYUDAS DE PANTALLA
@@ -103,6 +103,73 @@ def mostrar_detalle(objeto):
     for clave, valor in objeto.a_diccionario().items():
         print(f"  {str(clave).replace('_', ' ').capitalize():<16}: {valor}")  # Muestra cada dato con formato.
 
+#ESTOOOOOOOO AGREGUE
+# =====================================================================
+# MENÚ DE PAGOS
+# =====================================================================
+
+def registrar_pago():
+    """Solicita los datos necesarios para registrar un pago."""
+    imprimir_titulo("REGISTRAR PAGO")
+
+    imprimir_info("Ventas registradas:")
+    mostrar_lista(ventas.leer())
+
+    venta_id = pedir_entero("\nId de la venta: ")
+    if venta_id is None:
+        imprimir_error("El ID debe ser un número entero")
+        return pausa()
+
+    monto = input("Monto: ").strip()
+    metodo = input("Método (EFECTIVO / TARJETA / TRANSFERENCIA): ").strip()
+
+    datos = {
+        "venta_id": venta_id,
+        "monto": monto,
+        "metodo": metodo or "EFECTIVO"
+    }
+
+    mostrar_resultado(*pagos.crear(datos))
+    pausa()
+
+
+def listar_pagos():
+    """Muestra todos los pagos registrados."""
+    imprimir_titulo("PAGOS")
+    mostrar_lista(pagos.leer(), "Todavía no hay pagos registrados.")
+    pausa()
+
+
+def ver_pago():
+    """Muestra el detalle de un pago por ID."""
+    imprimir_titulo("VER PAGO POR ID")
+    pago = pagos.obtener(pedir_entero("Id del pago: "))
+
+    if pago is None:
+        imprimir_error("No encontrado")
+    else:
+        mostrar_detalle(pago)
+
+    pausa()
+
+
+def eliminar_pago():
+    """Elimina un pago existente."""
+    imprimir_titulo("ELIMINAR PAGO")
+    id_pago = pedir_entero("Id del pago: ")
+
+    pago = pagos.obtener(id_pago)
+    if pago is None:
+        imprimir_error("No encontrado")
+        return pausa()
+
+    imprimir_info(f"Se eliminará: {pago.etiqueta()}")
+    if confirmar("¿Confirma?"):
+        mostrar_resultado(*pagos.eliminar(id_pago))
+    else:
+        imprimir_info("Operación cancelada")
+
+    pausa()
 
 # =====================================================================
 # MENÚ DE CLIENTES
@@ -543,6 +610,8 @@ def resumen():
 
     print(f"  Vendido   : ${ventas.total_vendido():.2f}")  # Muestra el total vendido.
 
+    print(f"  Pagos     : {len(pagos.leer())}")  # <-- Nueva métrica
+
     pausa()  # Espera que el usuario presione Enter.
 
 
@@ -579,6 +648,14 @@ MENU_VENTAS = {
     "3": ("Ver comprobante", ver_comprobante),  # Opción 3: mostrar comprobante.
     "4": ("Anular venta", anular_venta),  # Opción 4: anular venta.
     "0": ("Volver", None),  # Opción 0: regresar al menú anterior.
+}
+
+MENU_PAGOS = {
+    "1": ("Registrar pago", registrar_pago),
+    "2": ("Ver todos", listar_pagos),
+    "3": ("Ver por id", ver_pago),
+    "4": ("Eliminar pago", eliminar_pago),
+    "0": ("Volver", None),
 }
 
 
@@ -634,8 +711,9 @@ def main():
         print("  1. Clientes")  # Muestra la opción de clientes.
         print("  2. Productos")  # Muestra la opción de productos.
         print("  3. Ventas")  # Muestra la opción de ventas.
-        print("  4. Resumen")  # Muestra la opción de resumen.
-        print("  0. Salir\n")  # Muestra la opción para salir.
+        print("  4. Pagos")     # <-- Opción agregada
+        print("  5. Resumen")   # <-- Opción desplazada
+        print("  0. Salir\n")
 
         tecla = input("Opción: ").strip()  # Solicita una opción al usuario.
 
@@ -649,15 +727,15 @@ def main():
             ejecutar_menu("VENTAS", MENU_VENTAS)  # Abre el menú de ventas.
 
         elif tecla == "4":
-            resumen()  # Muestra el resumen del sistema.
-
+            ejecutar_menu("PAGOS", MENU_PAGOS)  # <-- Ejecución del menú de pagos
+        elif tecla == "5":
+            resumen()
         elif tecla == "0":
-            imprimir_info("¡Hasta luego! 👋")  # Muestra el mensaje de salida.
-            break  # Termina el programa.
-
+            imprimir_info("¡Hasta luego! 👋")
+            break
         else:
-            imprimir_error("Opción no válida")  # Informa que la opción no existe.
-            pausa()  # Espera que el usuario presione Enter.
+            imprimir_error("Opción no válida")
+            pausa()
 
 
 if __name__ == "__main__":
